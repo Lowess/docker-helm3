@@ -1,6 +1,6 @@
 # Docker Helm3
 
-Docker container with Helm3 / AWSCli / EKS Vendored Kubctl and AWS-IAM-Authenticator
+Docker container with Helm / AWSCli / EKS Vendored Kubctl and AWS-IAM-Authenticator
 
 ## Build it!
 
@@ -15,5 +15,5 @@ docker run \
     -it --rm \
     -v ~/.aws:/root/.aws \
     -v ~/.kube:/root/.kube \
-    lowess/helm3
+    lowess/helm
 ```

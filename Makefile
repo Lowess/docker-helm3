@@ -1,7 +1,7 @@
 .PHONY: plugin release
 
 VERSION ?= latest
-APP ?= helm3
+APP ?= helm
 DOCKER_REGISTRY ?= lowess
 
 # Colors
