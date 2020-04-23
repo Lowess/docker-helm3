@@ -6,11 +6,13 @@ ENV AWS_IAM_AUTHENTICATOR_VERSION="1.15.10" \
     KUBECTL_VERSION="1.12.7" \
     HELM_VERSION="v3.1.2" \
     HELMFILE_VERSION="v0.111.0" \
-    HELM_PLATFORM="linux-amd64"
+    HELM_DIFF_VERSION="v3.0.0-rc.7" \
+    HELM_PLATFORM="linux-amd64" \
+    PATH="${PATH}:/usr/local/bin"
 
 ENV HELM_ARCHIVE="helm-${HELM_VERSION}-${HELM_PLATFORM}.tar.gz"
 
-# Install curl
+# Install curl and utilities
 RUN apk --no-cache update \
   && apk --no-cache add python py-pip py-setuptools ca-certificates curl groff less git bash \
   && pip --no-cache-dir install awscli==${AWS_CLI_VERSION} \
@@ -32,6 +34,12 @@ RUN curl -Lso /tmp/${HELM_ARCHIVE} https://get.helm.sh/${HELM_ARCHIVE} \
 # Install Helmfile
 RUN curl -Lso /usr/local/bin/helmfile https://github.com/roboll/helmfile/releases/download/${HELMFILE_VERSION}/helmfile_${HELM_PLATFORM/-/_} \
   && chmod +x /usr/local/bin/helmfile
+
+# Install Helm plugins
+RUN helm plugin install https://github.com/databus23/helm-diff --version ${HELM_DIFF_VERSION} && \
+    helm plugin install https://github.com/futuresimple/helm-secrets && \
+    helm plugin install https://github.com/hypnoglow/helm-s3.git && \
+    helm plugin install https://github.com/aslafy-z/helm-git.git
 
 ENTRYPOINT ["/usr/local/bin/helm"]
 CMD ["-h"]
