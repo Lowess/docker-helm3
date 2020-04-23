@@ -1,14 +1,12 @@
 FROM alpine:3.10.1
 LABEL maintainer="https://github.com/Lowess"
 
-ENV AWS_IAM_AUTHENTICATOR_VERSION="1.12.7" \
+ENV AWS_IAM_AUTHENTICATOR_VERSION="1.15.10" \
     AWS_CLI_VERSION="1.16.200" \
     KUBECTL_VERSION="1.12.7" \
-    HELM_VERSION="v2.14.2" \
-    HELM_PLATFORM="linux-amd64" \
-    HELM_HOST="localhost:44134" \
-    TILLER_NAMESPACE="ci" \
-    PATH="${PATH}:/usr/local/bin"
+    HELM_VERSION="v3.1.2" \
+    HELMFILE_VERSION="v0.111.0" \
+    HELM_PLATFORM="linux-amd64"
 
 ENV HELM_ARCHIVE="helm-${HELM_VERSION}-${HELM_PLATFORM}.tar.gz"
 
@@ -19,22 +17,21 @@ RUN apk --no-cache update \
   && rm -rf /var/cache/apk/*
 
 # Install AWS vendored Kubernetes clients
-RUN curl -so /usr/local/bin/kubectl https://amazon-eks.s3-us-west-2.amazonaws.com/${KUBECTL_VERSION}/2019-03-27/bin/linux/amd64/kubectl \
+RUN curl -Lso /usr/local/bin/kubectl https://amazon-eks.s3-us-west-2.amazonaws.com/${KUBECTL_VERSION}/2019-03-27/bin/linux/amd64/kubectl \
   && chmod +x /usr/local/bin/kubectl \
-  && curl -so /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/${AWS_IAM_AUTHENTICATOR_VERSION}/2019-03-27/bin/linux/amd64/aws-iam-authenticator \
+  && curl -Lso /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/${AWS_IAM_AUTHENTICATOR_VERSION}/2019-03-27/bin/linux/amd64/aws-iam-authenticator \
   && chmod +x /usr/local/bin/aws-iam-authenticator
 
-# Install Helm 2 tiller less or Helm 3
-RUN curl -so /tmp/${HELM_ARCHIVE} https://get.helm.sh/${HELM_ARCHIVE} \
+# Install Helm 3
+RUN curl -Lso /tmp/${HELM_ARCHIVE} https://get.helm.sh/${HELM_ARCHIVE} \
   && tar -xzf /tmp/${HELM_ARCHIVE} -C /tmp \
   && cp /tmp/${HELM_PLATFORM}/helm /usr/local/bin/helm \
   && chmod +x /usr/local/bin/helm \
   && ln -s /usr/local/bin/helm /usr/local/bin/h${HELM_VERSION:1:1}
 
-RUN  helm init --client-only \
-     && helm plugin install https://github.com/rimusz/helm-tiller
-
-EXPOSE 44134
+# Install Helmfile
+RUN curl -Lso /usr/local/bin/helmfile https://github.com/roboll/helmfile/releases/download/${HELMFILE_VERSION}/helmfile_${HELM_PLATFORM/-/_} \
+  && chmod +x /usr/local/bin/helmfile
 
 ENTRYPOINT ["/usr/local/bin/helm"]
 CMD ["-h"]
