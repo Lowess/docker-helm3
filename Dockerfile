@@ -14,7 +14,7 @@ ENV HELM_ARCHIVE="helm-${HELM_VERSION}-${HELM_PLATFORM}.tar.gz"
 
 # Install curl and utilities
 RUN apk --no-cache update \
-  && apk --no-cache add python py-pip py-setuptools ca-certificates curl groff less git bash \
+  && apk --no-cache add python py-pip py-setuptools ca-certificates curl groff less git bash rsync \
   && pip --no-cache-dir install awscli==${AWS_CLI_VERSION} \
   && rm -rf /var/cache/apk/*
 
